@@ -61,12 +61,10 @@ const handleInput = (index) => {
   if (index < inputValues.value.length - 1 && value) {
     document.querySelectorAll('.input-box')[index + 1].focus();
   } else if (index > 0 && !value) {
-    // Переводим фокус на предыдущий инпут, если текущий пуст и это не первый инпут
     document.querySelectorAll('.input-box')[index - 1].focus();
   }
 };
 
-// Проверяем значение при нажатии кнопки
 const checkValue = () => {
   const enteredValue = inputValues.value.join('');
   console.log(enteredValue, checkCode.value);
@@ -224,7 +222,7 @@ const formattedDate = (date) => {
   const today = dayjs();
   const inputDate = dayjs(date);
   const yearToday = today.year();
-  const monthToday = today.month(); // Месяцы в dayjs начинаются с 0
+  const monthToday = today.month();
   const dayToday = today.date();
 
   const yearDate = inputDate.year();
