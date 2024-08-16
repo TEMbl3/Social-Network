@@ -7,7 +7,7 @@ import io from 'socket.io-client';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru'
 dayjs.locale('ru')
-// Тест азим
+
 const socket = io("http://localhost:3000");
 const chatContainer = ref(null);
 const imageFile = ref(null);
