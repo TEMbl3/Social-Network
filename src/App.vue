@@ -55,6 +55,7 @@ const imgAdvertisement = ref('')
 const titleAdvertisement = ref('')
 const linkAdvertisement = ref('')
 const openPostAdvertisement = ref(false)
+const openBuyPremium = ref(false)
 
 const handleInput = (index) => {
   const value = inputValues.value[index];
@@ -582,7 +583,7 @@ onMounted(() => {
       </div>
       <div class="gap-[27px] flex group whitespace-nowrap text-white flex-col text-lg ml-[25px]">
         <div
-          @click="news = false, profile = true, friendstoggle = false, messenger = false, adminPanel = false, clearCurrentUser(), openPostAdvertisement = false"
+          @click="news = false, profile = true, friendstoggle = false, messenger = false, adminPanel = false, clearCurrentUser(), openPostAdvertisement = false, openBuyPremium = false"
           class="flex gap-[20px] items-center opacity-70 hover:opacity-100" :class="{ activedashboard: profile }">
           <img v-if="!user.img" class="h-10 object-cover"
             src="https://img.icons8.com/?size=100&id=XOn9u5ajbq8a&format=png&color=FFFFFF" alt="">
@@ -590,27 +591,34 @@ onMounted(() => {
           <button v-if="hidden" class="text-xl">Личный профиль</button>
         </div>
         <div
-          @click="news = true, profile = false, friendstoggle = false, messenger = false, adminPanel = false, clearCurrentUser(), openPostAdvertisement = false"
+          @click="news = true, profile = false, friendstoggle = false, messenger = false, adminPanel = false, clearCurrentUser(), openPostAdvertisement = false, openBuyPremium = false"
           class="flex gap-[20px] items-center opacity-70 hover:opacity-100" :class="{ activedashboard: news }">
           <img class="h-10 object-cover" src="https://img.icons8.com/?size=100&id=59847&format=png&color=FFFFFF" alt="">
           <button v-if="hidden" class="text-xl">Новости</button>
         </div>
         <div
-          @click="news = false, profile = false, friendstoggle = true, messenger = false, adminPanel = false, getUsers(), clearCurrentUser(), openPostAdvertisement = false"
+          @click="news = false, profile = false, friendstoggle = true, messenger = false, adminPanel = false, getUsers(), clearCurrentUser(), openPostAdvertisement = false, openBuyPremium = false"
           class="flex gap-[20px] items-center opacity-70 hover:opacity-100" :class="{ activedashboard: friendstoggle }">
           <img class="h-10 object-cover " src="https://img.icons8.com/?size=100&id=46204&format=png&color=FFFFFF"
             alt="">
           <button v-if="hidden" class="text-xl">Друзья</button>
         </div>
         <div
-          @click="news = false, profile = false, friendstoggle = false, messenger = true, adminPanel = false, getAllContacts(), clearCurrentUser(), openPostAdvertisement = false"
+          @click="news = false, profile = false, friendstoggle = false, messenger = true, adminPanel = false, getAllContacts(), clearCurrentUser(), openPostAdvertisement = false, openBuyPremium = false"
           class="flex gap-[20px] items-center opacity-70 hover:opacity-100" :class="{ activedashboard: messenger }">
           <img class="h-10 object-cover " src="https://img.icons8.com/?size=100&id=118377&format=png&color=FFFFFF"
             alt="">
           <button v-if="hidden" class="text-xl">Сообщения</button>
         </div>
+        <div v-if="!user.Premium"
+          @click="news = false, profile = false, friendstoggle = false, messenger = false, adminPanel = false, getAdvertisements(), clearCurrentUser(), openPostAdvertisement = false, openBuyPremium = true"
+          class="flex gap-[20px] items-center opacity-70 hover:opacity-100" :class="{ activedashboard: openBuyPremium }">
+          <img class="h-10 object-cover " src="https://img.icons8.com/?size=100&id=57925&format=png&color=FFFFFF"
+            alt="">
+          <button v-if="hidden" class="text-xl">Премиум</button>
+        </div>
         <div v-if="user.admin"
-          @click="news = false, profile = false, friendstoggle = false, messenger = false, adminPanel = true, getAdvertisements(), clearCurrentUser(), openPostAdvertisement = false"
+          @click="news = false, profile = false, friendstoggle = false, messenger = false, adminPanel = true, getAdvertisements(), clearCurrentUser(), openPostAdvertisement = false, openBuyPremium = false"
           class="flex gap-[20px] items-center opacity-70 hover:opacity-100" :class="{ activedashboard: adminPanel }">
           <img class="h-10 object-cover " src="https://img.icons8.com/?size=100&id=aQlRLcL6h4Ro&format=png&color=FFFFFF"
             alt="">
@@ -756,14 +764,17 @@ onMounted(() => {
         </div>
       </div>
       <div class="flex-col mt-32 ml-10 flex gap-4">
-        <div class="border w-80 max-w-80 h-auto flex flex-col gap-2 p-3 rounded-lg shadow-sm" v-for="advertisement in advertisements">
-          <img v-if="advertisement.img" class="rounded mb-2 max-w-full object-cover max-h-64" :src="advertisement.img" alt="">
+        <div class="border w-80 max-w-80 h-auto flex flex-col gap-2 p-3 rounded-lg shadow-sm"
+          v-for="advertisement in advertisements">
+          <img v-if="advertisement.img" class="rounded mb-2 max-w-full object-cover max-h-64" :src="advertisement.img"
+            alt="">
           <a target="_blank" :href="advertisement.link">
-            <h2 class="text-xl text-blue-600 hover:text-blue-800 font-semibold break-all">{{advertisement.title}}</h2>
+            <h2 class="text-xl text-blue-600 hover:text-blue-800 font-semibold break-all">{{ advertisement.title }}</h2>
           </a>
           <p class="break-all">{{ advertisement.text }}</p>
           <a target="_blank" :href="advertisement.link"
-            class="bg-blue-500 text-center hover:bg-blue-600 active:bg-blue-700 transition pointer text-white py-2 rounded">Перейти на товар</a>
+            class="bg-blue-500 text-center hover:bg-blue-600 active:bg-blue-700 transition pointer text-white py-2 rounded">Перейти
+            на товар</a>
         </div>
       </div>
     </div>
@@ -901,7 +912,7 @@ onMounted(() => {
           </h3>
           <h3 class="mb-3 font-medium text-xl">Хобби: <span v-if="currentUser.hobbi" class="font-normal">{{
             currentUser.hobbi
-              }}</span>
+          }}</span>
             <span v-if="!currentUser.education" class="font-normal">Неизвестно</span>
           </h3>
           <h3 class="font-medium text-xl ">Где учился: <span v-if="currentUser.education" class="font-normal">{{
@@ -1045,6 +1056,70 @@ onMounted(() => {
           </div>
           <button class="bg-blue-500 p-3 rounded-lg shadow-sm hover:bg-blue-600 active:bg-blue-700"
             @click="postAdvertisement">Сохранить рекламу</button>
+        </div>
+      </div>
+    </div>
+    <div class="z-3 w-full h-screen flex flex-col gap-5 items-center justify-center" v-if="openBuyPremium">
+      <h2 class="font-semibold text-3xl">Спасибо, за то что выбрали нас!</h2>
+      <div class="flex gap-24 mt-4 flex-wrap">
+        <div class="w-[400px] h-[500px] flex flex-col gap-3 border p-8 rounded-xl">
+          <div class="flex items-center gap-[14px]">
+            <img class="w-8 h-8 object-cover"
+              src="https://img.icons8.com/?size=100&id=fJ7hcfUGpKG7&format=png&color=000000" alt="">
+            <h3 class="text-2xl font-semibold">Бесплатный</h3>
+          </div>
+          <p class="break-all font-[400] text-gray-600">Это вам присваивается когда вы регистрируетесь на нашем сайте.
+          </p>
+          <h3 class="flex items-center gap-2"> <span class="text-3xl font-semibold">₽0</span><span
+              class="text-gray-500">/ Навсегда</span></h3>
+          <div class="flex flex-col gap-[10px] mt-3">
+            <p class="flex gap-3 items-center font-[500]"><img
+                src="https://img.icons8.com/?size=100&id=11849&format=png&color=000000" class="w-5 h-5"
+                alt="">Выкладывание постов</p>
+            <p class="flex gap-3 items-center font-[500]"><img
+                src="https://img.icons8.com/?size=100&id=11849&format=png&color=000000" class="w-5 h-5" alt="">Поиск
+              друзей</p>
+            <p class="flex gap-3 items-center font-[500]"><img
+                src="https://img.icons8.com/?size=100&id=11849&format=png&color=000000" class="w-5 h-5"
+                alt="">Мессенджер</p>
+            <p class="flex gap-3 items-center font-[500] opacity-50"><img src="../public/icons8-крестик-78.png"
+                class="w-5 h-5" alt=""> Быстрая служба поддержки</p>
+            <p class="flex gap-3 items-center font-[500] opacity-50"><img src="../public/icons8-крестик-78.png"
+                class="w-5 h-5" alt=""> Без рекламы</p>
+          </div>
+          <div class="flex-1"></div>
+          <button class="border border-black p-3 rounded-lg bg-gray-200 font-[500]">У вас уже есть этот уровень
+            подписки</button>
+        </div>
+        <div class="w-[400px] h-[500px] text-white bg-[#1769ff] shadow flex flex-col gap-3 border p-8 rounded-xl">
+          <div class="flex items-center gap-[14px]">
+            <img class="w-8 h-8 object-cover"
+              src="https://img.icons8.com/?size=100&id=57925&format=png&color=FFFFFF" alt="">
+            <h3 class="text-2xl font-semibold">Премиум</h3>
+          </div>
+          <p class="break-all font-[400] opacity-70">Это вам присваивается когда вы регистрируетесь на нашем сайте.
+          </p>
+          <h3 class="flex items-center gap-2"> <span class="text-3xl font-semibold">₽500</span><span
+              class="text-white-500">/ Навсегда</span></h3>
+          <div class="flex flex-col gap-[10px] mt-3">
+            <p class="flex gap-3 items-center font-[500]"><img
+                src="https://img.icons8.com/?size=100&id=98955&format=png&color=FFFFFF" class="w-5 h-5"
+                alt="">Выкладывание постов</p>
+            <p class="flex gap-3 items-center font-[500]"><img
+                src="https://img.icons8.com/?size=100&id=98955&format=png&color=FFFFFF" class="w-5 h-5" alt="">Поиск
+              друзей</p>
+            <p class="flex gap-3 items-center font-[500]"><img
+                src="https://img.icons8.com/?size=100&id=98955&format=png&color=FFFFFF" class="w-5 h-5"
+                alt="">Мессенджер</p>
+            <p class="flex gap-3 items-center font-[500]"><img
+                src="https://img.icons8.com/?size=100&id=98955&format=png&color=FFFFFF" class="w-5 h-5" alt=""> Быстрая
+              служба поддержки</p>
+            <p class="flex gap-3 items-center font-[500]"><img
+                src="https://img.icons8.com/?size=100&id=98955&format=png&color=FFFFFF" class="w-5 h-5" alt=""> Без
+              рекламы</p>
+          </div>
+          <div class="flex-1"></div>
+          <button class="border p-3 rounded-lg text-[#ea4c89] text-xl bg-slate-50 font-[500] hover:bg-gray-100 active:bg-gray-200 active:shadow-inner hover:transition  active:transition-none">Купить</button>
         </div>
       </div>
     </div>
