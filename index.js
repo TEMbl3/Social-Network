@@ -6,6 +6,8 @@ const FormData = require("form-data");
 const http = require("http");
 const socketIo = require("socket.io");
 const nodemailer = require("nodemailer");
+const bodyParser = require("body-parser");
+const crypto = require("crypto");
 
 const app = express();
 const server = http.createServer(app); // Создаем HTTP сервер
@@ -18,6 +20,7 @@ const port = 3000;
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
+app.use(bodyParser.json());
 app.use(express.json());
 
 const IMGUR_CLIENT_ID = "ada260c89208c10";
@@ -42,6 +45,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
 });
 
 let mongoose = require("mongoose");
+const { type } = require("os");
 mongoose.connect("mongodb://127.0.0.1:27017/SocialNetwork");
 
 let userSchema = new mongoose.Schema(
@@ -96,6 +100,11 @@ let userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    Premium: {
+      type: Boolean,
+      default: false,
+    },
+    paymentId: String,
     friends: [
       {
         email: String,
@@ -174,7 +183,7 @@ let advertisementSchema = new mongoose.Schema(
     link: {
       type: String,
       required: false,
-    }
+    },
   },
   {
     timestamps: true,
@@ -217,35 +226,35 @@ app.get("/getUsers", async function (req, res) {
   }
 });
 
-app.get('/getAdvertisements', async function (req, res) {
-  try{
-    let data = await Advertisement.find()
-    res.send(data)
-  } catch{
+app.get("/getAdvertisements", async function (req, res) {
+  try {
+    let data = await Advertisement.find();
+    res.send(data);
+  } catch {
     console.error(404);
   }
-})
+});
 
-app.post('/postAdvertisement', async function (req, res) {
-  try{
-    let text = req.body.text
-    let img = req.body.img
-    let title = req.body.title
-    let link = req.body.link
+app.post("/postAdvertisement", async function (req, res) {
+  try {
+    let text = req.body.text;
+    let img = req.body.img;
+    let title = req.body.title;
+    let link = req.body.link;
 
     let advertisement = new Advertisement({
       title: title,
       text: text,
       img: img,
-      link: link
-    })
-    await advertisement.save()
-    let data = await Advertisement.find()
-    res.send(data)
-  } catch{
+      link: link,
+    });
+    await advertisement.save();
+    let data = await Advertisement.find();
+    res.send(data);
+  } catch {
     console.error(404);
   }
-})
+});
 
 app.get("/getContactByNick", async function (req, res) {
   try {
@@ -548,8 +557,64 @@ app.get("/getCode", async (req, res) => {
     });
     res.send(code);
   } catch {
-    res.send.status(404)
+    res.send.status(404);
   }
+});
+
+const SHOP_ID = "415999";
+const SECRET_KEY = "test_07i1UsEEoJn_g_SIh-vYmiJDKGZ1Oksy3dMrNfXU0cw";
+const RETURN_URL = "http://localhost:5173/payment-success";
+
+app.post("/create-payment", async (req, res) => {
+  const { email } = req.body;
+  const idempotenceKey = crypto.randomBytes(16).toString("hex");
+
+  try {
+    const response = await axios.post(
+      "https://api.yookassa.ru/v3/payments",
+      {
+        amount: {
+          value: 499,
+          currency: "RUB",
+        },
+        capture: true,
+        confirmation: {
+          type: "redirect",
+          return_url: RETURN_URL,
+        },
+        description: "Оплата премиума",
+        metadata: {
+          email: email
+        }
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotence-Key": idempotenceKey,
+        },
+        auth: {
+          username: SHOP_ID,
+          password: SECRET_KEY,
+        },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/webhook", async (req, res) => {
+  const { event, object } = req.body;
+  if (event === 'payment.succeeded') {
+    const email = object.metadata.email;
+    try {
+      await User.findOneAndUpdate({ email }, { Premium: true });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  res.status(200).send('OK');
 });
 
 server.listen(port, () => {

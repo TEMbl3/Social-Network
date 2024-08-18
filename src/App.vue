@@ -66,6 +66,17 @@ const handleInput = (index) => {
   }
 };
 
+const pay = async () => {
+  try {
+    const response = await axios.post('http://localhost:3000/create-payment', {
+      email: user.value.email
+    });
+    window.location.href = response.data.confirmation.confirmation_url;
+  } catch (error) {
+    console.error('Ошибка при создании платежа:', error);
+  }
+};
+
 const checkValue = () => {
   const enteredValue = inputValues.value.join('');
   console.log(enteredValue, checkCode.value);
@@ -587,7 +598,7 @@ onMounted(() => {
           class="flex gap-[20px] items-center opacity-70 hover:opacity-100" :class="{ activedashboard: profile }">
           <img v-if="!user.img" class="h-10 object-cover"
             src="https://img.icons8.com/?size=100&id=XOn9u5ajbq8a&format=png&color=FFFFFF" alt="">
-          <img v-else class="h-10 rounded-3xl min-w-10 max-w-10 object-cover" :src="user.img" alt="">
+          <img v-else class="h-10 border-[2px] p-[2px] rounded-3xl min-w-10 max-w-10 object-cover" :src="user.img" alt="">
           <button v-if="hidden" class="text-xl">Личный профиль</button>
         </div>
         <div
@@ -612,7 +623,8 @@ onMounted(() => {
         </div>
         <div v-if="!user.Premium"
           @click="news = false, profile = false, friendstoggle = false, messenger = false, adminPanel = false, getAdvertisements(), clearCurrentUser(), openPostAdvertisement = false, openBuyPremium = true"
-          class="flex gap-[20px] items-center opacity-70 hover:opacity-100" :class="{ activedashboard: openBuyPremium }">
+          class="flex gap-[20px] items-center opacity-70 hover:opacity-100"
+          :class="{ activedashboard: openBuyPremium }">
           <img class="h-10 object-cover " src="https://img.icons8.com/?size=100&id=57925&format=png&color=FFFFFF"
             alt="">
           <button v-if="hidden" class="text-xl">Премиум</button>
@@ -644,7 +656,7 @@ onMounted(() => {
         <div class="flex flex-wrap flex-col items-left mt-3 break-all  w-96">
           <h3 class="font-medium mb-2 text-xl text-overflow: ellipsis;">Статус: <span v-if="user.status"
               class="font-normal">{{
-                user.status }}</span><a v-if="!user.status" class="font-normal cursor-pointer text-blue-600"
+              user.status }}</span><a v-if="!user.status" class="font-normal cursor-pointer text-blue-600"
               @click="redactor = !redactor">добавить</a></h3>
           <h3 class="mb-2 font-medium text-xl">Возраст: <span v-if="user.age" class="font-normal">{{ user.age
               }}</span><a v-if="!user.age" class="font-normal text-blue-600 cursor-pointer"
@@ -653,7 +665,7 @@ onMounted(() => {
               }}</span><a v-if="!user.hobbi" class="font-normal text-blue-600 cursor-pointer"
               @click="redactor = !redactor">добавить</a></h3>
           <h3 class="font-medium text-xl ">Где учился: <span v-if="user.education" class="font-normal">{{
-            user.education }}</span><a v-if="!user.education" class="font-normal cursor-pointer text-blue-600"
+              user.education }}</span><a v-if="!user.education" class="font-normal cursor-pointer text-blue-600"
               @click="redactor = !redactor">добавить</a></h3>
           <button @click="redactor = !redactor"
             class="text-xl shadow p-3 text-white mt-3 rounded-xl bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Редактировать
@@ -704,7 +716,8 @@ onMounted(() => {
             v-for="post in myPosts">
             <div class="flex items-center gap-3 my-3 ml-3 justify-between">
               <div class="flex items-center gap-3">
-                <img class="w-10 h-10 object-cover rounded-3xl" :src="post.avatar" alt="">
+                <img v-if="post.avatar" class="w-10 h-10 object-cover rounded-3xl" :src="post.avatar" alt="">
+                <img v-else class="w-10 h-10 object-cover rounded-3xl" src="https://sun9-35.userapi.com/impg/c631928/v631928758/3aa12/0EZXEZFWjdk.jpg?size=2048x1290&quality=96&sign=8792eb719c13ec61472567a369d495e0&c_uniq_tag=USF1lxcERr7UoKbXZUbIGRucbdlF0F4_eYju_-22KH0&type=album" alt="">
                 <h2 class="text-xl">{{ post.first_name }} {{ post.last_name }}</h2>
               </div>
               <p>{{ formattedDate(post.createdAt) }}</p>
@@ -752,7 +765,8 @@ onMounted(() => {
           <div class="text-left w-full border mb-4 rounded-xl p-4 shadow-md" v-for="post in posts">
             <div class="flex items-center gap-3 my-3 ml-3 justify-between">
               <div class="flex items-center gap-3">
-                <img loading="lazy" class="w-10 h-10 object-cover rounded-3xl" :src="post.avatar" alt="">
+                <img v-if="!post.avatar" loading="lazy" class="w-10 h-10 object-cover rounded-3xl" src="https://sun9-35.userapi.com/impg/c631928/v631928758/3aa12/0EZXEZFWjdk.jpg?size=2048x1290&quality=96&sign=8792eb719c13ec61472567a369d495e0&c_uniq_tag=USF1lxcERr7UoKbXZUbIGRucbdlF0F4_eYju_-22KH0&type=album" alt="">
+                <img v-else loading="lazy" class="w-10 h-10 object-cover rounded-3xl" :src="post.avatar" alt="">
                 <h2 class="text-xl">{{ post.first_name }} {{ post.last_name }}</h2>
               </div>
               <p>{{ formattedDate(post.createdAt) }}</p>
@@ -763,7 +777,7 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      <div class="flex-col mt-32 ml-10 flex gap-4">
+      <div v-if="!user.Premium" class="flex-col mt-32 ml-10 flex gap-4">
         <div class="border w-80 max-w-80 h-auto flex flex-col gap-2 p-3 rounded-lg shadow-sm"
           v-for="advertisement in advertisements">
           <img v-if="advertisement.img" class="rounded mb-2 max-w-full object-cover max-h-64" :src="advertisement.img"
@@ -903,7 +917,7 @@ onMounted(() => {
         <div class="flex flex-wrap flex-col items-left mt-3 break-all  w-96 ">
           <h3 class="font-medium mb-3 text-xl text-overflow: ellipsis;">Статус: <span v-if="user.status"
               class="font-normal">{{
-                currentUser.status }}</span>
+              currentUser.status }}</span>
             <span v-if="!currentUser.education" class="font-normal">Неизвестно</span>
           </h3>
           <h3 class="mb-3 font-medium text-xl">Возраст: <span v-if="user.age" class="font-normal">{{ currentUser.age
@@ -911,12 +925,12 @@ onMounted(() => {
             <span v-if="!currentUser.education" class="font-normal">Неизвестно</span>
           </h3>
           <h3 class="mb-3 font-medium text-xl">Хобби: <span v-if="currentUser.hobbi" class="font-normal">{{
-            currentUser.hobbi
-          }}</span>
+              currentUser.hobbi
+              }}</span>
             <span v-if="!currentUser.education" class="font-normal">Неизвестно</span>
           </h3>
           <h3 class="font-medium text-xl ">Где учился: <span v-if="currentUser.education" class="font-normal">{{
-            currentUser.education }}</span>
+              currentUser.education }}</span>
             <span v-if="!currentUser.education" class="font-normal">Неизвестно</span>
           </h3>
         </div>
@@ -1093,13 +1107,13 @@ onMounted(() => {
         </div>
         <div class="w-[400px] h-[500px] text-white bg-[#1769ff] shadow flex flex-col gap-3 border p-8 rounded-xl">
           <div class="flex items-center gap-[14px]">
-            <img class="w-8 h-8 object-cover"
-              src="https://img.icons8.com/?size=100&id=57925&format=png&color=FFFFFF" alt="">
+            <img class="w-8 h-8 object-cover" src="https://img.icons8.com/?size=100&id=57925&format=png&color=FFFFFF"
+              alt="">
             <h3 class="text-2xl font-semibold">Премиум</h3>
           </div>
           <p class="break-all font-[400] opacity-70">Это вам присваивается когда вы регистрируетесь на нашем сайте.
           </p>
-          <h3 class="flex items-center gap-2"> <span class="text-3xl font-semibold">₽500</span><span
+          <h3 class="flex items-center gap-2"> <span class="text-3xl font-semibold">₽499</span><span
               class="text-white-500">/ Навсегда</span></h3>
           <div class="flex flex-col gap-[10px] mt-3">
             <p class="flex gap-3 items-center font-[500]"><img
@@ -1119,7 +1133,8 @@ onMounted(() => {
               рекламы</p>
           </div>
           <div class="flex-1"></div>
-          <button class="border p-3 rounded-lg text-[#ea4c89] text-xl bg-slate-50 font-[500] hover:bg-gray-100 active:bg-gray-200 active:shadow-inner hover:transition  active:transition-none">Купить</button>
+          <button @click="pay"
+            class="border p-3 rounded-lg text-[#ea4c89] text-xl bg-slate-50 font-[500] hover:bg-gray-100 active:bg-gray-200 active:shadow-inner hover:transition  active:transition-none">Купить</button>
         </div>
       </div>
     </div>
