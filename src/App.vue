@@ -1111,7 +1111,7 @@ onMounted(() => {
               alt="">
             <h3 class="text-2xl font-semibold">Премиум</h3>
           </div>
-          <p class="break-all font-[400] opacity-70">Это вам присваивается когда вы регистрируетесь на нашем сайте.
+          <p class="break-all font-[400] opacity-70">Вы можете поддержать нас и получить некоторые привелегии.
           </p>
           <h3 class="flex items-center gap-2"> <span class="text-3xl font-semibold">₽499</span><span
               class="text-white-500">/ Навсегда</span></h3>
